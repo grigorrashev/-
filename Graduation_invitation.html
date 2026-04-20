@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Graduation Invitation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #F1F3E0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Georgia, serif;
+        }
+
+        #canvas {
+            min-height: 100vh;
+            background: #F1F3E0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            position: relative;
+        }
+
+        .envelope-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .envelope {
+            width: 280px;
+            height: 190px;
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+
+        .envelope:hover {
+            transform: scale(1.03);
+        }
+
+        .env-body {
+            width: 100%;
+            height: 100%;
+            background: #A1BC98;
+            border-radius: 4px;
+            position: absolute;
+        }
+
+        .env-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 140px solid transparent;
+            border-right: 140px solid transparent;
+            border-top: 100px solid #778873;
+            transform-origin: top center;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 3;
+        }
+
+        .env-flap.open {
+            transform: rotateX(180deg);
+        }
+
+        .env-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 140px solid transparent;
+            border-right: 140px solid transparent;
+            border-bottom: 95px solid #8aaa82;
+            z-index: 1;
+        }
+
+        .env-left {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-bottom: 190px solid #93ae8a;
+            border-right: 140px solid transparent;
+            z-index: 1;
+        }
+
+        .env-right {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-bottom: 190px solid #8aaa82;
+            border-left: 140px solid transparent;
+            z-index: 1;
+        }
+
+        .env-seal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 36px;
+            height: 36px;
+            background: #778873;
+            border-radius: 50%;
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s;
+        }
+
+        .env-seal svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .tap-hint {
+            margin-top: 20px;
+            font-family: Georgia, serif;
+            font-size: 13px;
+            color: #778873;
+            letter-spacing: 0.12em;
+            opacity: 0.85;
+        }
+
+        .invitation-wrap {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .invitation-wrap.visible {
+            display: block;
+            opacity: 1;
+        }
+
+        .invitation-card {
+            background: #fff;
+            border-radius: 2px;
+            padding: 56px 52px;
+            position: relative;
+            border: 1px solid #D2DCB6;
+        }
+
+        .inv-border {
+            position: absolute;
+            inset: 10px;
+            border: 1px solid #D2DCB6;
+            border-radius: 1px;
+            pointer-events: none;
+        }
+
+        .inv-corner {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+        }
+
+        .inv-corner svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .inv-corner.tl {
+            top: 18px;
+            left: 18px;
+        }
+
+        .inv-corner.tr {
+            top: 18px;
+            right: 18px;
+            transform: scaleX(-1);
+        }
+
+        .inv-corner.bl {
+            bottom: 18px;
+            left: 18px;
+            transform: scaleY(-1);
+        }
+
+        .inv-corner.br {
+            bottom: 18px;
+            right: 18px;
+            transform: scale(-1, -1);
+        }
+
+        .inv-eyebrow {
+            font-family: Georgia, serif;
+            font-size: 20px;
+            letter-spacing: 0.28em;
+            color: #A1BC98;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .inv-divider {
+            width: 48px;
+            height: 1px;
+            background: #D2DCB6;
+            margin: 0 auto 24px;
+        }
+
+        .inv-name {
+            font-family: Georgia, serif;
+            font-size: 38px;
+            font-weight: 400;
+            color: #778873;
+            text-align: center;
+            line-height: 1.2;
+            margin-bottom: 4px;
+            font-style: italic;
+        }
+
+        .inv-title {
+            font-family: Georgia, serif;
+            font-size: 11px;
+            letter-spacing: 0.22em;
+            color: #A1BC98;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+        }
+
+        .inv-divider2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .inv-divider2 span {
+            flex: 1;
+            height: 1px;
+            background: #D2DCB6;
+        }
+
+
+        .inv-body {
+            font-family: Georgia, serif;
+            font-size: 13px;
+            color: #888;
+            text-align: center;
+            line-height: 1.9;
+            margin-bottom: 32px;
+            letter-spacing: 0.03em;
+        }
+
+        .inv-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0;
+            border-top: 1px solid #D2DCB6;
+            padding-top: 24px;
+            margin-bottom: 24px;
+        }
+
+        .inv-detail {
+            text-align: center;
+            padding: 0 8px;
+        }
+
+        .inv-detail:not(:last-child) {
+            border-right: 1px solid #D2DCB6;
+        }
+
+        .inv-detail-label {
+            font-size: 12px;
+            letter-spacing: 0.22em;
+            color: #A1BC98;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            font-family: Georgia, serif;
+        }
+
+        .inv-detail-value {
+            font-size: 15px;
+            color: #778873;
+            font-family: Georgia, serif;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .inv-detail-value a {
+            color: #778873;
+            font-family: Georgia, serif;
+            font-size: 15px;
+            font-weight: 400;
+            text-decoration: underline;
+        }
+
+        .inv-footer {
+            font-family: Georgia, serif;
+            font-size: 12px;
+            letter-spacing: 0.18em;
+            color: #A1BC98;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+            pointer-events: none;
+            border-radius: 1px;
+        }
+
+        #confetti-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-20px) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(600px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .slide-up {
+            animation: slideUp 0.7s ease forwards;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="canvas">
+        <div id="confetti-container"></div>
+
+        <div class="envelope-wrap" id="envelope-wrap" onclick="openEnvelope()">
+            <div class="envelope" id="envelope">
+                <div class="env-body"></div>
+                <div class="env-left"></div>
+                <div class="env-right"></div>
+                <div class="env-bottom"></div>
+                <div class="env-flap" id="env-flap"></div>
+                <div class="env-seal" id="env-seal">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M12 3 C12 3, 8 7, 8 11 C8 13.2 9.8 15 12 15 C14.2 15 16 13.2 16 11 C16 7 12 3 12 3Z"
+                            fill="#F1F3E0" />
+                        <path d="M8 15 C8 15, 5 16, 4 19 L20 19 C19 16 16 15 16 15" fill="#F1F3E0" />
+                    </svg>
+                </div>
+            </div>
+            <p class="tap-hint">tap to open</p>
+        </div>
+
+        <div class="invitation-wrap" id="invitation">
+            <div class="invitation-card slide-up">
+                <div class="inv-border"></div>
+
+                <div class="inv-corner tl">
+                    <svg viewBox="0 0 22 22" fill="none">
+                        <path d="M2 20 L2 2 L20 2" stroke="#D2DCB6" stroke-width="1" />
+                        <circle cx="2" cy="2" r="2" fill="#D2DCB6" />
+                    </svg>
+                </div>
+                <div class="inv-corner tr">
+                    <svg viewBox="0 0 22 22" fill="none">
+                        <path d="M2 20 L2 2 L20 2" stroke="#D2DCB6" stroke-width="1" />
+                        <circle cx="2" cy="2" r="2" fill="#D2DCB6" />
+                    </svg>
+                </div>
+                <div class="inv-corner bl">
+                    <svg viewBox="0 0 22 22" fill="none">
+                        <path d="M2 20 L2 2 L20 2" stroke="#D2DCB6" stroke-width="1" />
+                        <circle cx="2" cy="2" r="2" fill="#D2DCB6" />
+                    </svg>
+                </div>
+                <div class="inv-corner br">
+                    <svg viewBox="0 0 22 22" fill="none">
+                        <path d="M2 20 L2 2 L20 2" stroke="#D2DCB6" stroke-width="1" />
+                        <circle cx="2" cy="2" r="2" fill="#D2DCB6" />
+                    </svg>
+                </div>
+
+                <p class="inv-eyebrow">Абитуриентски Бал</p>
+                <div class="inv-divider"></div>
+
+                <p class="inv-name">Григор Рашев</p>
+                <p class="inv-title"></p>
+
+                <div class="inv-divider2">
+                    <span></span>
+                    <span class="inv-leaf"></span>
+                    <span></span>
+                </div>
+
+                <p class="inv-body">
+                    Имам честта и удоволствието да Ви поканя да споделите с мен един от най-тържествените и значими
+                    моменти в живота ми <br>
+                    – моя абитуриентски бал.<br>
+                    <span style="color: #778873; font-style: italic;">Твоето присъствие ще направи този ден още
+                        по-специален и незабравим. </span><br>
+                    <span style="color: #778873; font-style: italic;">Ще се радвам да отпразнуваме заедно края на
+                        училището и началото на всичко, което предстои.</span>
+                </p>
+
+                <div class="inv-details">
+                    <div class="inv-detail">
+                        <p class="inv-detail-label">Дата</p>
+                        <p class="inv-detail-value">23.05.<br></p>
+                    </div>
+                    <div class="inv-detail">
+                        <p class="inv-detail-label">Час</p>
+                        <p class="inv-detail-value">18:00<br></p>
+                    </div>
+                    <div class="inv-detail">
+                        <p class="inv-detail-label">Място</p>
+                        <p class="inv-detail-value"><a href="https://maps.app.goo.gl/zZU8JaqHKbisuMg5A?g_st=ic">Линк</a>
+                        </p>
+                    </div>
+                </div>
+
+                <p class="inv-footer">Очаквам те с нетърпение!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function launchConfetti() {
+            const colors = ['#778873', '#A1BC98', '#D2DCB6', '#F1F3E0', '#ffffff'];
+            const container = document.getElementById('confetti-container');
+            for (let i = 0; i < 80; i++) {
+                setTimeout(() => {
+                    const piece = document.createElement('div');
+                    piece.className = 'confetti-piece';
+                    piece.style.left = Math.random() * 100 + '%';
+                    piece.style.top = '-10px';
+                    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    piece.style.width = (Math.random() * 8 + 4) + 'px';
+                    piece.style.height = (Math.random() * 8 + 4) + 'px';
+                    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '1px';
+                    const dur = (Math.random() * 1.5 + 1.2).toFixed(2);
+                    const delay = (Math.random() * 0.8).toFixed(2);
+                    piece.style.animation = `fall ${dur}s ${delay}s ease-in forwards`;
+                    container.appendChild(piece);
+                    setTimeout(() => piece.remove(), (parseFloat(dur) + parseFloat(delay) + 0.2) * 1000);
+                }, i * 15);
+            }
+        }
+
+        function openEnvelope() {
+            const flap = document.getElementById('env-flap');
+            const seal = document.getElementById('env-seal');
+            const wrap = document.getElementById('envelope-wrap');
+            const inv = document.getElementById('invitation');
+
+            seal.style.opacity = '0';
+            flap.classList.add('open');
+            launchConfetti();
+
+            setTimeout(() => {
+                wrap.style.display = 'none';
+                inv.style.display = 'block';
+                requestAnimationFrame(() => {
+                    inv.style.opacity = '1';
+                });
+                launchConfetti();
+            }, 700);
+        }
+
+
+    </script>
+
+</body>
+
+</html>
